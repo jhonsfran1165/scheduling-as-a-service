@@ -1,0 +1,37 @@
+{
+  "name": "job-manager",
+  "version": "1.0.0",
+  "description": "Job manager W&J",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon --exec babel-node src/app.js",
+    "inspect": "nodemon --inspect --exec babel-node src/app.js"
+  },
+  "author": "jhonsfran",
+  "license": "ISC",
+  "imports": {
+    "#config": "./src/config.js",
+    "#jobs/*": "./src/jobs/*.js",
+    "#api": "./src/api/index.js"
+  },
+  "dependencies": {
+    "agenda": "^4.2.1",
+    "agendash": "^2.1.1",
+    "body-parser": "^1.19.1",
+    "dotenv": "^14.3.2",
+    "envalid": "^7.2.2",
+    "express": "^4.17.2",
+    "express-basic-auth": "^1.2.1",
+    "mongoose": "^6.1.8",
+    "node-fetch": "^2.6.7",
+    "winston": "^3.5.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.8",
+    "@babel/core": "^7.16.7",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.8",
+    "nodemon": "^2.0.15"
+  }
+}

@@ -1,24 +1,8 @@
 import routes from "#api";
 import config from "#config";
-import agendash from "agendash";
 import express from "express";
-import basicAuth from "express-basic-auth";
 
-export default ({ app, agenda }) => {
-  /**
-   * Define agenda dashboard
-   */
-  app.use(
-    "/dash",
-    basicAuth({
-      users: {
-        [config.agendash.user]: config.agendash.password,
-      },
-      challenge: true,
-    }),
-    agendash(agenda)
-  );
-
+export default ({ app }) => {
   /**
    * Health Check endpoints
    * @TODO Explain why they are here
@@ -39,12 +23,26 @@ export default ({ app, agenda }) => {
   // Load API routes
   app.use(config.api.prefix, routes());
 
+  // TODO: add midleware to protect this API
+
+  /// catch 404 and forward to error handler
+  app.use((req, res, next) => {
+    const err = new Error("Not Found");
+    err["status"] = 404;
+    next(err);
+  });
+
   /// error handlers
   app.use((err, req, res, next) => {
+    // handling errors thrown by celebrate validation
+    const errorBody = err?.details?.get("body"); // 'details' is a Map()
+    let errorDetails = errorBody?.details || null;
+
     res.status(err.status || 500);
     res.json({
       errors: {
         message: err.message,
+        details: errorDetails,
       },
     });
   });

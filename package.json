@@ -13,18 +13,23 @@
   "imports": {
     "#config": "./src/config.js",
     "#jobs/*": "./src/jobs/*.js",
+    "#loaders/*": "./src/loaders/*.js",
     "#api": "./src/api/index.js"
   },
   "dependencies": {
     "agenda": "^4.2.1",
-    "agendash": "^2.1.1",
+    "agendash": "^3.1.0",
     "body-parser": "^1.19.1",
+    "celebrate": "^15.0.1",
     "dotenv": "^14.3.2",
     "envalid": "^7.2.2",
     "express": "^4.17.2",
     "express-basic-auth": "^1.2.1",
+    "form-data": "^4.0.0",
+    "mailgun.js": "^4.2.1",
     "mongoose": "^6.1.8",
     "node-fetch": "^2.6.7",
+    "typedi": "^0.10.0",
     "winston": "^3.5.0"
   },
   "devDependencies": {

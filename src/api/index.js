@@ -1,10 +1,12 @@
 import { Router } from "express";
-// import agendash from "./routes/agendash";
+import agendash from "./routes/agendash";
+import jobs from "./routes/jobs";
 
 // guaranteed to get dependencies
 export default () => {
   const app = Router();
-  // agendash(app);
+  jobs(app);
+  agendash(app);
 
   return app;
 };

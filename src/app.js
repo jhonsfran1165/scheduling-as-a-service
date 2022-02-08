@@ -2,18 +2,19 @@ import config from "#config";
 import express from "express";
 import Logger from "./loaders/logger";
 
+let agenda;
+let server;
+
 async function startServer() {
   const app = express();
-
   /**
    * A little hack here
    * Import/Export can only be used in 'top-level code'
    * Well, at least in node 10 without babel and at the time of writing
    * So we are using good old require.
    **/
-  await require("./loaders").default({ expressApp: app });
-
-  app
+  agenda = await require("./loaders").default({ expressApp: app });
+  server = app
     .listen(config.port, () => {
       Logger.info(`
       ################################################
@@ -28,3 +29,14 @@ async function startServer() {
 }
 
 startServer();
+
+async function graceful() {
+  console.log("\nClosing server...");
+  await server.close();
+  console.log("Shutting down gracefully...");
+  await agenda.stop();
+  process.exit(0);
+}
+
+process.on("SIGTERM", graceful);
+process.on("SIGINT", graceful);

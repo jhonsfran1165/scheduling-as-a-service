@@ -8,11 +8,11 @@ export default ({ mongoConnection }) => {
     db: { collection: config.agenda.dbCollection },
     processEvery: config.agenda.pooltime,
     maxConcurrency: config.agenda.concurrency,
-    defaultConcurrency: 5,
+    defaultConcurrency: 20,
     lockLimit: 0,
     defaultLockLimit: 0,
-    // This will ensure that no other job processor (this one included) attempts to run the job again for the next 10 minutes. If you have a particularly long running job, you will want to specify a longer lockLifetime on each job
-    defaultLockLifetime: 10000,
+    // This will ensure that no other job processor (this one included) attempts to run the job again for the next 15 minutes. If you have a particularly long running job, you will want to specify a longer lockLifetime on each job
+    defaultLockLifetime: 15000,
     name: os.hostname + "-" + process.pid,
   });
   /**

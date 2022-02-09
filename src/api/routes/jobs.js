@@ -1,31 +1,72 @@
+import config from "#config";
+import dynamicJob from "#jobs/dynamicJob";
 import Logger from "#loaders/logger";
+import { toTimeZone } from "#util";
 import { celebrate, Joi } from "celebrate";
 import { Router } from "express";
 import { Container } from "typedi";
 
 const route = Router();
+const default_priorities = ["highest", "high", "normal", "low", "lowest"];
+const default_types = ["normal", "dynamic"];
+
+const celebrateValidation = {
+  name: Joi.string().required(),
+  url: Joi.string().uri().required(),
+  priority: Joi.string().valid(default_priorities.join(", ")).default("normal"),
+  type: Joi.string().valid(default_types.join(", ")).default("dynamic"),
+  project: Joi.string().default("oceana"),
+  data: Joi.object({
+    method: Joi.string().default("POST"),
+    headers: Joi.object().default({ "Content-Type": "application/json" }),
+    params: Joi.object().default({}),
+    query: Joi.object().default({}),
+    body: Joi.object(),
+  }),
+  options: Joi.object({
+    timezone: Joi.string(),
+  }).default({
+    timezone: config.defaultTimeZone,
+  }),
+  callback: Joi.object({
+    url: Joi.string(),
+    method: Joi.string().default("POST"),
+    headers: Joi.object().default({ "Content-Type": "application/json" }),
+  }),
+};
 
 export default (app) => {
   const agenda = Container.get("agendaInstance");
 
   app.use("/jobs", route);
 
-  route.post("/", async (req, res) => {
-    Logger.debug("Calling jobs/ endpoint with body: %o", req.body);
+  route.post(
+    "/",
+    celebrate({
+      body: Joi.object({
+        name: Joi.string(),
+      }),
+    }),
+    async (req, res, next) => {
+      Logger.debug("Calling jobs/ endpoint with body: %o", req.body);
 
-    try {
-      // TODO: add pagination with find, sort, limit and skip
-      const jobs = await agenda.jobs(
-        { name: "printAnalyticsReport" },
-        { _id: -1 }
-      );
+      try {
+        // TODO: add pagination with find, sort, limit and skip
+        const query = {};
 
-      return res.json({ jobs }).status(200);
-    } catch (e) {
-      Logger.error("🔥 error: %o", e);
-      return next(e);
+        if (req.body?.name) {
+          query.name = req.body.name;
+        }
+
+        const jobs = await agenda.jobs(query, { _id: -1 });
+
+        return res.json({ jobs }).status(200);
+      } catch (e) {
+        Logger.error("🔥 error: %o", e);
+        return next(e);
+      }
     }
-  });
+  );
 
   route.post(
     "/delete",
@@ -34,7 +75,7 @@ export default (app) => {
         name: Joi.string().required(),
       }),
     }),
-    async (req, res) => {
+    async (req, res, next) => {
       Logger.debug("Calling jobs/delete endpoint with body: %o", req.body);
 
       try {
@@ -54,7 +95,7 @@ export default (app) => {
         name: Joi.string().required(),
       }),
     }),
-    async (req, res) => {
+    async (req, res, next) => {
       Logger.debug("Calling jobs/disable endpoint with body: %o", req.body);
 
       try {
@@ -75,7 +116,7 @@ export default (app) => {
         name: Joi.string().required(),
       }),
     }),
-    async (req, res) => {
+    async (req, res, next) => {
       Logger.debug("Calling jobs/enable endpoint with body: %o", req.body);
 
       try {
@@ -100,12 +141,243 @@ export default (app) => {
         name: Joi.string().required(),
       }),
     }),
-    async (req, res) => {
+    async (req, res, next) => {
       Logger.debug("Calling jobs/purge endpoint with body: %o", req.body);
 
       try {
         const numPurged = await agenda.purge({ name: req.body.name });
         return res.json({ numPurged }).status(200);
+      } catch (e) {
+        Logger.error("🔥 error: %o", e);
+        return next(e);
+      }
+    }
+  );
+
+  /** Define Jobs */
+  route.post(
+    "/once",
+    celebrate({
+      body: Joi.object({
+        ...celebrateValidation,
+        when: Joi.alternatives()
+          .try(Joi.string(), Joi.number(), Joi.date())
+          .required(),
+      }),
+    }),
+    async (req, res, next) => {
+      Logger.debug("Calling jobs/define endpoint with body: %o", req.body);
+
+      try {
+        const { name, type, priority, options, when, ...payload } = req.body;
+
+        // We have another endpoint to handle this case
+        if (when === "now")
+          return res
+            .json({
+              message: "Use job/now endpoint for schedule this kind of jobs",
+            })
+            .status(400);
+
+        const query = {
+          name,
+          type,
+          url,
+        };
+
+        const queryKeys = { ...payload, ...options };
+
+        for (const key of Object.keys(queryKeys)) {
+          query[`data.${key}`] = queryKeys[key];
+        }
+
+        const jobs = await agenda.jobs(query);
+
+        // create job only if it's not exist
+        if (!jobs || jobs.length === 0) {
+          const job = await agenda.schedule(when, name, {
+            ...payload,
+            ...options,
+          });
+
+          // Set type and timezone
+          job.attrs.type = type;
+
+          if (options.timezone !== config.defaultTimeZone) {
+            job.attrs.nextRunAt = toTimeZone(
+              job.attrs.nextRunAt,
+              options.timezone
+            );
+          }
+
+          // set priority
+          job.priority(priority);
+
+          // Save job
+          await job.save();
+
+          // because this is a dynamic job we have to define its behavior
+          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
+
+          return res.json({ message: "Job successfully saved" }).status(200);
+        } else {
+          return res
+            .json({ message: "This job with the sent data already exist!" })
+            .status(400);
+        }
+      } catch (e) {
+        Logger.error("🔥 error: %o", e);
+        return next(e);
+      }
+    }
+  );
+
+  /** Define Jobs */
+  route.post(
+    "/every",
+    celebrate({
+      body: Joi.object({
+        ...celebrateValidation,
+        startDate: Joi.date(),
+        endDate: Joi.date(),
+        interval: Joi.string().required(),
+        skipDays: Joi.string(),
+      }),
+    }),
+    async (req, res, next) => {
+      Logger.debug("Calling jobs/define endpoint with body: %o", req.body);
+
+      try {
+        const {
+          name,
+          type,
+          priority,
+          options,
+          interval,
+          startDate,
+          endDate,
+          skipDays,
+          ...payload
+        } = req.body;
+
+        // We have another endpoint to handle this case
+        if (interval === "now")
+          return res
+            .json({
+              message: "Use job/now endpoint for schedule this kind of jobs",
+            })
+            .status(400);
+
+        const query = {
+          name,
+          type,
+          url,
+        };
+
+        const queryKeys = { ...payload, ...options };
+
+        for (const key of Object.keys(queryKeys)) {
+          query[`data.${key}`] = queryKeys[key];
+        }
+
+        const jobs = await agenda.jobs(query);
+
+        // create job only if it's not exist
+        if (!jobs || jobs.length === 0) {
+          const job = await agenda.every(
+            interval,
+            name,
+            {
+              ...payload,
+              ...options,
+            },
+            {
+              timezone: options.timezone || config.defaultTimeZone,
+              skipImmediate: true,
+              skipDays,
+              endDate,
+              startDate,
+            }
+          );
+
+          // Set type and timezone
+          job.attrs.type = type;
+
+          // set priority
+          job.priority(priority);
+
+          // Save job
+          await job.save();
+
+          // because this is a dynamic job we have to define its behavior
+          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
+
+          return res.json({ message: "Job successfully saved" }).status(200);
+        } else {
+          return res
+            .json({ message: "This job with the sent data already exist!" })
+            .status(400);
+        }
+      } catch (e) {
+        Logger.error("🔥 error: %o", e);
+        return next(e);
+      }
+    }
+  );
+
+  /** Define Jobs */
+  route.post(
+    "/now",
+    celebrate({
+      body: Joi.object({
+        ...celebrateValidation,
+      }),
+    }),
+    async (req, res, next) => {
+      Logger.debug("Calling jobs/define endpoint with body: %o", req.body);
+
+      try {
+        const { name, type, priority, options, ...payload } = req.body;
+
+        const query = {
+          name,
+          type,
+          url,
+        };
+
+        const queryKeys = { ...payload, ...options };
+
+        for (const key of Object.keys(queryKeys)) {
+          query[`data.${key}`] = queryKeys[key];
+        }
+
+        const jobs = await agenda.jobs(query);
+
+        // create job only if it's not exist
+        if (!jobs || jobs.length === 0) {
+          const job = await agenda.now(name, {
+            ...payload,
+            ...options,
+          });
+
+          // Set type and timezone
+          job.attrs.type = type;
+
+          // set priority
+          job.priority(priority);
+
+          // Save job
+          await job.save();
+
+          // because this is a dynamic job we have to define its behavior
+          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
+
+          return res.json({ message: "Job successfully saved" }).status(200);
+        } else {
+          return res
+            .json({ message: "This job with the sent data already exist!" })
+            .status(400);
+        }
       } catch (e) {
         Logger.error("🔥 error: %o", e);
         return next(e);

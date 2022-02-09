@@ -64,4 +64,6 @@ export default {
     apiUsername: process.env.MAILGUN_USERNAME,
     domain: process.env.MAILGUN_DOMAIN,
   },
+  defaultTimeZone: process.env.TIMEZONE || "America/Bogota",
+  timeout: process.env.TIMEOUT || 900000,
 };

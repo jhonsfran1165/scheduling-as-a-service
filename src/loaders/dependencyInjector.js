@@ -1,6 +1,7 @@
 import config from "#config";
 import formData from "form-data";
 import Mailgun from "mailgun.js";
+import moment from "moment-timezone";
 import { Container } from "typedi";
 import agendaFactory from "./agenda";
 import LoggerInstance from "./logger";
@@ -10,6 +11,8 @@ export default ({ mongoConnection, models }) => {
     models.forEach((m) => {
       Container.set(m.name, m.model);
     });
+
+    moment.tz.setDefault(config.defaultTimeZone);
 
     const agendaInstance = agendaFactory({ mongoConnection });
     const mgInstance = new Mailgun(formData);

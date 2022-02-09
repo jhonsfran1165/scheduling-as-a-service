@@ -12,6 +12,7 @@
   "license": "ISC",
   "imports": {
     "#config": "./src/config.js",
+    "#util": "./src/util.js",
     "#jobs/*": "./src/jobs/*.js",
     "#loaders/*": "./src/loaders/*.js",
     "#api": "./src/api/index.js"
@@ -27,8 +28,10 @@
     "express-basic-auth": "^1.2.1",
     "form-data": "^4.0.0",
     "mailgun.js": "^4.2.1",
+    "moment-timezone": "^0.5.34",
     "mongoose": "^6.1.8",
     "node-fetch": "^2.6.7",
+    "query-string": "^7.1.1",
     "typedi": "^0.10.0",
     "winston": "^3.5.0"
   },

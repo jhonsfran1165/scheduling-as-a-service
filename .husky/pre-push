@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo 'some last tests to send to origin 🚀. If there are error you can run npm eslint:fix inside the container'
+npm run lint .

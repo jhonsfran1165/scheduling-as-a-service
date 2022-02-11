@@ -1,0 +1,7 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+
+echo 'checking style and rules of the code... jhonsfranbot is looking for errors 👀'
+npm run format
+git add .

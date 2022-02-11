@@ -4,7 +4,7 @@ import Mailgun from "mailgun.js";
 import moment from "moment-timezone";
 import { Container } from "typedi";
 import agendaFactory from "./agenda";
-import LoggerInstance from "./logger";
+import Logger from "./logger";
 
 export default ({ mongoConnection, models }) => {
   try {
@@ -18,7 +18,7 @@ export default ({ mongoConnection, models }) => {
     const mgInstance = new Mailgun(formData);
 
     Container.set("agendaInstance", agendaInstance);
-    Container.set("logger", LoggerInstance);
+    Container.set("logger", Logger);
     Container.set(
       "emailClient",
       mgInstance.client({
@@ -29,11 +29,11 @@ export default ({ mongoConnection, models }) => {
 
     Container.set("emailDomain", config.emails.domain);
 
-    LoggerInstance.info("✌️ Agenda injected into container");
+    Logger.info("✌️ Agenda injected into container");
 
     return { agenda: agendaInstance };
   } catch (e) {
-    LoggerInstance.error("🔥 Error on dependency injector loader: %o", e);
+    Logger.error("🔥 Error on dependency injector loader: %o", e);
     throw e;
   }
 };

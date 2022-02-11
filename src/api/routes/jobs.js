@@ -206,7 +206,7 @@ export default (app) => {
           // Set type and timezone
           job.attrs.type = type;
 
-          // TODO: check this out
+          // Agenda does not support timezone for once method
           if (options.timezone !== config.defaultTimeZone) {
             job.attrs.nextRunAt = toTimeZone(
               job.attrs.nextRunAt,

@@ -1,0 +1,24 @@
+version: "3.4"
+
+networks:
+  whaleandjaguar:
+    external:
+      name: whaleandjaguar.localhost
+
+services:
+  job-manager:
+    image: jhonsfran/node-dev:14.17.0-v1
+    container_name: job-manager
+    env_file:
+      - .env
+    networks:
+      default:
+      whaleandjaguar:
+    volumes:
+      - .:/usr/local/src/app:cached
+      - jobmanager_node_modules:/usr/local/src/app/node_modules # do not link node_modules in, and persist it between dc up runs
+    ports:
+      - "9000:9000"
+
+volumes:
+  jobmanager_node_modules:

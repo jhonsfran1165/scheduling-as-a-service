@@ -9,7 +9,7 @@ const isValidDate = (date) =>
 // =>
 // http://example.com:8888/foo/value1/value2
 const buildUrlWithParams = ({ url, params }) => {
-  if (url.indexOf("/:") > 0 && params) {
+  if (url?.indexOf("/:") && url.indexOf("/:") > 0 && params) {
     const protoDomain = url.slice(0, url.indexOf("/:"));
     let path = url.slice(url.indexOf("/:"));
 

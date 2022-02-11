@@ -26,6 +26,7 @@ export default ({ mongoConnection, models }) => {
         username: config.emails.apiUsername,
       })
     );
+
     Container.set("emailDomain", config.emails.domain);
 
     LoggerInstance.info("✌️ Agenda injected into container");

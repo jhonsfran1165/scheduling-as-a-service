@@ -1,5 +1,5 @@
-import callUrl from "#jobs/callUrl";
 import dynamicJob from "#jobs/dynamicJob";
+import sendEmail from "#jobs/sendEmail";
 import Logger from "#loaders/logger";
 
 export default async ({ agenda }) => {
@@ -23,7 +23,7 @@ export default async ({ agenda }) => {
   });
 
   /** Job definitions */
-  agenda.define("call:url", { priority: "high" }, callUrl);
+  agenda.define("send:email", { priority: "high" }, sendEmail);
 
   agenda.start();
 };

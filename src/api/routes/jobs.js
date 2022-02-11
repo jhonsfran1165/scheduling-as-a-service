@@ -10,18 +10,30 @@ const route = Router();
 const default_priorities = ["highest", "high", "normal", "low", "lowest"];
 const default_types = ["normal", "dynamic"];
 
-const celebrateValidation = {
+const jobSchema = {
   name: Joi.string().required(),
-  url: Joi.string().uri().required(),
-  priority: Joi.string().valid(default_priorities.join(", ")).default("normal"),
-  type: Joi.string().valid(default_types.join(", ")).default("dynamic"),
-  project: Joi.string().default("oceana"),
-  data: Joi.object({
-    method: Joi.string().default("POST"),
-    headers: Joi.object().default({ "Content-Type": "application/json" }),
-    params: Joi.object().default({}),
-    query: Joi.object().default({}),
-    body: Joi.object(),
+  priority: Joi.string()
+    .valid(...default_priorities)
+    .default("normal"),
+  type: Joi.string()
+    .valid(...default_types)
+    .default("dynamic"),
+  payload: Joi.alternatives().conditional("type", {
+    is: "dynamic",
+    then: Joi.object({
+      project: Joi.string().default("oceana"),
+      url: Joi.string().uri(),
+      method: Joi.string().default("POST"),
+      headers: Joi.object().default({ "Content-Type": "application/json" }),
+      params: Joi.object().default({}),
+      query: Joi.object().default({}),
+      body: Joi.object(),
+    }),
+    otherwise: Joi.object()
+      .keys({
+        project: Joi.string().default("oceana"),
+      })
+      .unknown(true),
   }),
   options: Joi.object({
     timezone: Joi.string(),
@@ -159,7 +171,7 @@ export default (app) => {
     "/once",
     celebrate({
       body: Joi.object({
-        ...celebrateValidation,
+        ...jobSchema,
         when: Joi.alternatives()
           .try(Joi.string(), Joi.number(), Joi.date())
           .required(),
@@ -171,18 +183,9 @@ export default (app) => {
       try {
         const { name, type, priority, options, when, ...payload } = req.body;
 
-        // We have another endpoint to handle this case
-        if (when === "now")
-          return res
-            .json({
-              message: "Use job/now endpoint for schedule this kind of jobs",
-            })
-            .status(400);
-
         const query = {
           name,
           type,
-          url,
         };
 
         const queryKeys = { ...payload, ...options };
@@ -203,6 +206,7 @@ export default (app) => {
           // Set type and timezone
           job.attrs.type = type;
 
+          // TODO: check this out
           if (options.timezone !== config.defaultTimeZone) {
             job.attrs.nextRunAt = toTimeZone(
               job.attrs.nextRunAt,
@@ -216,8 +220,15 @@ export default (app) => {
           // Save job
           await job.save();
 
-          // because this is a dynamic job we have to define its behavior
-          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
+          // check if there is some definition already with this job
+          if (!agenda._definitions.hasOwnProperty(name)) {
+            // because this is a dynamic job we have to define its behavior
+            agenda.define(
+              name,
+              { priority, shouldSaveResult: true },
+              dynamicJob
+            );
+          }
 
           return res.json({ message: "Job successfully saved" }).status(200);
         } else {
@@ -237,7 +248,7 @@ export default (app) => {
     "/every",
     celebrate({
       body: Joi.object({
-        ...celebrateValidation,
+        ...jobSchema,
         startDate: Joi.date(),
         endDate: Joi.date(),
         interval: Joi.string().required(),
@@ -260,18 +271,9 @@ export default (app) => {
           ...payload
         } = req.body;
 
-        // We have another endpoint to handle this case
-        if (interval === "now")
-          return res
-            .json({
-              message: "Use job/now endpoint for schedule this kind of jobs",
-            })
-            .status(400);
-
         const query = {
           name,
           type,
-          url,
         };
 
         const queryKeys = { ...payload, ...options };
@@ -309,68 +311,15 @@ export default (app) => {
           // Save job
           await job.save();
 
-          // because this is a dynamic job we have to define its behavior
-          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
-
-          return res.json({ message: "Job successfully saved" }).status(200);
-        } else {
-          return res
-            .json({ message: "This job with the sent data already exist!" })
-            .status(400);
-        }
-      } catch (e) {
-        Logger.error("🔥 error: %o", e);
-        return next(e);
-      }
-    }
-  );
-
-  /** Define Jobs */
-  route.post(
-    "/now",
-    celebrate({
-      body: Joi.object({
-        ...celebrateValidation,
-      }),
-    }),
-    async (req, res, next) => {
-      Logger.debug("Calling jobs/define endpoint with body: %o", req.body);
-
-      try {
-        const { name, type, priority, options, ...payload } = req.body;
-
-        const query = {
-          name,
-          type,
-          url,
-        };
-
-        const queryKeys = { ...payload, ...options };
-
-        for (const key of Object.keys(queryKeys)) {
-          query[`data.${key}`] = queryKeys[key];
-        }
-
-        const jobs = await agenda.jobs(query);
-
-        // create job only if it's not exist
-        if (!jobs || jobs.length === 0) {
-          const job = await agenda.now(name, {
-            ...payload,
-            ...options,
-          });
-
-          // Set type and timezone
-          job.attrs.type = type;
-
-          // set priority
-          job.priority(priority);
-
-          // Save job
-          await job.save();
-
-          // because this is a dynamic job we have to define its behavior
-          agenda.define(name, { priority, shouldSaveResult: true }, dynamicJob);
+          // check if there is some definition already with this job
+          if (!agenda._definitions.hasOwnProperty(name)) {
+            // because this is a dynamic job we have to define its behavior
+            agenda.define(
+              name,
+              { priority, shouldSaveResult: true },
+              dynamicJob
+            );
+          }
 
           return res.json({ message: "Job successfully saved" }).status(200);
         } else {

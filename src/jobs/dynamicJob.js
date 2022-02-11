@@ -9,20 +9,20 @@ const dynamicJob = async (job, done) => {
       attrs: { data },
     } = job;
 
-    const { data: props, callback } = data;
+    const { payload, callback } = data;
 
     Logger.debug("✌️ Calling Job " + job.attrs.name);
 
-    let uri = buildUrlWithParams({ url: data.url, params: props?.params });
-    uri = buildUrlWithQuery({ url: uri, query: props?.query });
+    let uri = buildUrlWithParams({ url: payload.url, params: payload?.params });
+    uri = buildUrlWithQuery({ url: uri, query: payload?.query });
 
     const options = {
-      method: props.method,
-      body: JSON.stringify(props?.body || {}),
-      headers: props.headers,
+      method: payload.method,
+      body: JSON.stringify(payload?.body || {}),
+      headers: payload.headers,
     };
 
-    if (["GET", "HEAD"].includes(props.method)) delete options.body;
+    if (["GET", "HEAD"].includes(payload.method)) delete options.body;
 
     // Error if no response in timeout for lambdas
     Promise.race([
@@ -36,7 +36,7 @@ const dynamicJob = async (job, done) => {
         return { error: err.message };
       })
       .then(async (res) => {
-        const result = await res.json();
+        const result = await res.text();
 
         if (callback) {
           return fetch(callback.url, {
@@ -46,7 +46,10 @@ const dynamicJob = async (job, done) => {
           });
         }
       })
-      .catch((err) => job.fail(`failure in callback: ${err.message}`))
+      .catch((err) => {
+        console.log(err);
+        job.fail(`failure in callback: ${err.message}`);
+      })
       .then(() => done());
   } catch (e) {
     Logger.error("🔥 Error with Calling url Job: %o", e);

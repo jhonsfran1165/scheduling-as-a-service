@@ -1,6 +1,6 @@
-import config from "#config";
+// import config from "#config";
 import agendash from "agendash";
-import basicAuth from "express-basic-auth";
+// import basicAuth from "express-basic-auth";
 import { Container } from "typedi";
 
 export default (app) => {
@@ -8,12 +8,12 @@ export default (app) => {
 
   app.use(
     "/dash",
-    basicAuth({
-      users: {
-        [config.agendash.user]: config.agendash.password,
-      },
-      challenge: true,
-    }),
+    // basicAuth({
+    //   users: {
+    //     [config.agendash.user]: config.agendash.password,
+    //   },
+    //   challenge: true,
+    // }),
     agendash(agendaInstance)
   );
 };

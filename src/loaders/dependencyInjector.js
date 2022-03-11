@@ -3,8 +3,8 @@ import formData from "form-data";
 import Mailgun from "mailgun.js";
 import moment from "moment-timezone";
 import { Container } from "typedi";
-import agendaFactory from "./agenda";
-import Logger from "./logger";
+import agendaFactory from "#loaders/agenda";
+import Logger from "#loaders/logger";
 
 export default ({ mongoConnection, models }) => {
   try {

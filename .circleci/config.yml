@@ -3,10 +3,10 @@ version: 2.1
 parameters:
   service:
     type: string
-    default: "cronjobs"
+    default: "jobmanager"
   docker-repo:
     type: string
-    default: "jhonsfran/oceana-databases"
+    default: "jhonsfran/jobmanager"
   docker-namespace:
     type: string
     default: "jhonsfran"
@@ -139,29 +139,7 @@ jobs:
       - ci-scripts:
           script: "docker-build-tag-push . ${DOCKER_REPOSITORY}"
 
-  gitops-backups:
-    <<: *defaults
-    parameters:
-      environment:
-        type: string
-      service:
-        type: string
-    environment:
-      PROJECT: << pipeline.parameters.gitops-project >>
-      ENVIRONMENT: << parameters.environment >>
-      SERVICE: << parameters.service >>
-      BRANCH_TO_PUSH: << pipeline.parameters.branch-to-push >>
-      DOCKER_REPOSITORY: << pipeline.parameters.docker-repo >>
-    steps:
-      - checkout
-      - install-node-deps
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
-      - ci-scripts:
-          script: "gitops-gitlab"
-
-  gitops-restores:
+  gitops-jobmanager:
     <<: *defaults
     parameters:
       environment:
@@ -188,24 +166,24 @@ workflows:
   main:
     jobs:
       - install-dependencies
-      - test-commitlint:
-          requires:
-            - install-dependencies
-      - test-eslint:
-          requires:
-            - install-dependencies
+      # - test-commitlint:
+      #     requires:
+      #       - install-dependencies
+      # - test-eslint:
+      #     requires:
+      #       - install-dependencies
       - dockerfile-lint:
           requires:
             - install-dependencies
       - release:
           context: whaleandjaguar-publish-semantic-release
           requires:
-            - test-commitlint
-            - test-eslint
+            # - test-commitlint
+            # - test-eslint
             - dockerfile-lint
           filters:
             branches:
-              only: master
+              only: main
       - docker-build-push:
           context: whaleandjaguar-docker
           filters:
@@ -213,23 +191,12 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - gitops-backups:
+      - gitops-jobmanager:
           environment: development
-          service: backups
+          service: jobmanager
           context: whaleandjaguar-gitops
           requires:
             - docker-build-push
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-      - gitops-restores:
-          environment: development
-          service: restores
-          context: whaleandjaguar-gitops
-          requires:
-            - gitops-backups
           filters:
             tags:
               only: /^v.*/

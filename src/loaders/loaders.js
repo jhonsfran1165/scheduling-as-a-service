@@ -1,8 +1,8 @@
-import dependencyInjectorLoader from "./dependencyInjector";
-import expressLoader from "./express";
-import jobsLoader from "./jobs";
-import Logger from "./logger";
-import mongooseLoader from "./mongoose";
+import dependencyInjectorLoader from "#loaders/dependencyInjector";
+import expressLoader from "#loaders/express";
+import jobsLoader from "#loaders/jobs";
+import Logger from "#loaders/logger";
+import mongooseLoader from "#loaders/mongoose";
 
 export default async ({ expressApp }) => {
   const mongoConnection = await mongooseLoader();

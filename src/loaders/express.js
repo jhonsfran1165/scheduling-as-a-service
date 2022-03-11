@@ -1,4 +1,4 @@
-import routes from "#api";
+import routes from "#api/api";
 import config from "#config";
 import express from "express";
 

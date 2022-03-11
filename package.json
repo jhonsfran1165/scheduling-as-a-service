@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Job manager W&J",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "prepare": "husky install",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon --exec babel-node src/app.js",
+    "start": "node src/app.js",
     "inspect": "nodemon --inspect --exec babel-node src/app.js"
   },
   "author": "jhonsfran",
@@ -15,7 +18,7 @@
     "#util": "./src/util.js",
     "#jobs/*": "./src/jobs/*.js",
     "#loaders/*": "./src/loaders/*.js",
-    "#api": "./src/api/index.js"
+    "#api/*": "./src/api/*.js"
   },
   "dependencies": {
     "agenda": "^4.2.1",
@@ -41,6 +44,13 @@
     "@babel/core": "^7.16.7",
     "@babel/node": "^7.16.8",
     "@babel/preset-env": "^7.16.8",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "semantic-release": "^17.4.4",
+    "husky": "^7.0.1",
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/exec": "^5.0.0",
+    "@semantic-release/git": "^9.0.0"
   }
 }

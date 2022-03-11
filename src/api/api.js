@@ -1,6 +1,6 @@
+import agendash from "#api/routes/agendash";
+import jobs from "#api/routes/jobs";
 import { Router } from "express";
-import agendash from "./routes/agendash";
-import jobs from "./routes/jobs";
 
 // guaranteed to get dependencies
 export default () => {

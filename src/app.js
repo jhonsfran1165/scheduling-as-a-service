@@ -1,6 +1,7 @@
 import config from "#config";
+import loaders from "#loaders/loaders";
+import Logger from "#loaders/logger";
 import express from "express";
-import Logger from "./loaders/logger";
 
 let agenda;
 let server;
@@ -13,7 +14,7 @@ async function startServer() {
    * Well, at least in node 10 without babel and at the time of writing
    * So we are using good old require.
    **/
-  agenda = await require("./loaders").default({ expressApp: app });
+  agenda = await loaders({ expressApp: app });
   server = app
     .listen(config.port, () => {
       Logger.info(`

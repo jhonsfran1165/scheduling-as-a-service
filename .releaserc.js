@@ -1,6 +1,6 @@
 const { CIRCLE_BRANCH: branch } = process.env;
 
-module.exports = {
+export default {
   plugins: ["master", "main"].includes(branch)
     ? [
         [

@@ -1,3 +1,10 @@
+## [1.0.2](https://bitbucket.org/oceana-wj/jobmanager/compare/v1.0.1...v1.0.2) (2022-03-11)
+
+
+### Bug Fixes
+
+* deactivate dash protection ([f27160e](https://bitbucket.org/oceana-wj/jobmanager/commits/f27160e5a11dc4f5f68bf84c357e89ff8aac75a7))
+
 ## [1.0.1](https://bitbucket.org/oceana-wj/jobmanager/compare/v1.0.0...v1.0.1) (2022-03-11)
 
 

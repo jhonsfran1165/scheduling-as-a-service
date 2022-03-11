@@ -38,14 +38,6 @@ const releaseConfig = {
         "@semantic-release/release-notes-generator",
         "@semantic-release/changelog",
         [
-          "@semantic-release/exec",
-          {
-            verifyReleaseCmd: "echo ${nextRelease.version} > VERSION.txt",
-            prepareCmd:
-              "sed -i 's/v${lastRelease.version}/v${nextRelease.version}/' pyproject.toml",
-          },
-        ],
-        [
           "@semantic-release/git",
           {
             assets: [

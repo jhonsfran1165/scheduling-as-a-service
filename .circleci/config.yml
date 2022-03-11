@@ -46,7 +46,7 @@ defaults: &defaults
     DOCKER_NAMESPACE: << pipeline.parameters.docker-namespace >>
     DOCKER_NAME: << pipeline.parameters.docker-name >>
   docker:
-    - image: circleci/node:14.11.0-stretch
+    - image: circleci/node:14.17.0-stretch
 
 jobs:
   install-dependencies:

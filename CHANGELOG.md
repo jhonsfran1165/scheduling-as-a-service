@@ -1,3 +1,10 @@
+## [1.0.1](https://bitbucket.org/oceana-wj/jobmanager/compare/v1.0.0...v1.0.1) (2022-03-11)
+
+
+### Bug Fixes
+
+* don't throw execption when missing .env ([fad8fcd](https://bitbucket.org/oceana-wj/jobmanager/commits/fad8fcde90879bd97011751ab833e7f496324d27))
+
 # 1.0.0 (2022-03-11)
 
 

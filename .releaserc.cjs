@@ -94,7 +94,7 @@ const releaseConfig = {
         },
       ],
   branches: [
-    "master",
+    "main",
     {
       name: "develop",
       prerelease: "rc",

@@ -42,4 +42,23 @@ const toTimeZone = (time, zone) => {
   return moment(time).tz(zone).format("YYYY-MM-DD[T]HH:mm:ss.SSS[Z]");
 };
 
-export { isValidDate, buildUrlWithParams, buildUrlWithQuery, toTimeZone };
+const poll = async ({ fn, params, validate, interval, maxAttempts }) => {
+  let attempts = 0;
+
+  const executePoll = async (resolve, reject) => {
+    const result = await fn.send(params);
+    attempts++;
+
+    if (validate(result)) {
+      return resolve(result);
+    } else if (maxAttempts && attempts === maxAttempts) {
+      return reject(new Error("Exceeded max attempts"));
+    } else {
+      setTimeout(executePoll, interval, resolve, reject);
+    }
+  };
+
+  return new Promise(executePoll);
+};
+
+export { isValidDate, buildUrlWithParams, buildUrlWithQuery, toTimeZone, poll };

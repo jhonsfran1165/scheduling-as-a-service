@@ -13,6 +13,13 @@ if (envFound.error && process.env.NODE_ENV) {
 
 export default {
   /**
+   * Slack
+   */
+  slack: {
+    slackChannel: process.env.SLACK_CHANNEL,
+    slackKey: process.env.SLACK_TOKEN,
+  },
+  /**
    * Your favorite port
    */
   port: parseInt(process.env.PORT, 10),
@@ -67,4 +74,18 @@ export default {
   },
   defaultTimeZone: process.env.TIMEZONE || "America/Bogota",
   timeout: process.env.TIMEOUT || 900000,
+  /**
+   * AWS datalake
+   */
+  awsDataLake: {
+    awsRegion: process.env.AWS_DEFAULT_REGION,
+    awsApiKey: process.env.AWS_API_KEY,
+    dataLakeName: process.env.DATALAKE_NAME,
+    lambdaPrice: process.env.LAMBDA_PRICE,
+    dynamoPrice: process.env.DYNAMO_PRICE,
+    s3Price: process.env.S3_PRICE,
+    functionsPrice: process.env.STEPFUNCTIONS_PRICE,
+    athenaPrice: process.env.ATHENA_PRICE,
+    whalePrice: process.env.WHALE_PRICE,
+  },
 };

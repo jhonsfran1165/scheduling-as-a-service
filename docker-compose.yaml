@@ -18,6 +18,7 @@ services:
       - .:/usr/local/src/app:cached
       - jobmanager_node_modules:/usr/local/src/app/node_modules # do not link node_modules in, and persist it between dc up runs
     ports:
+      # TODO: enable debug
       - "9000:9000"
 
 volumes:

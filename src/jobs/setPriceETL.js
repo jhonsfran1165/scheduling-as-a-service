@@ -38,8 +38,8 @@ const setPriceETL = async (job, done) => {
       fn: sfn,
       params: commandSFN,
       validate,
-      interval: config.timeout / 50,
-      maxAttempts: 50,
+      interval: 20000,
+      maxAttempts: 300,
     });
 
     // TODO: if step function fail then send email or retry with the same
@@ -52,8 +52,9 @@ const setPriceETL = async (job, done) => {
       const diffTime = Math.abs(new Date(stopDate) - new Date(startDate));
       const lambdaCost = parseFloat(lambdaPrice) * diffTime;
       const functionsCost = parseFloat(functionsPrice) * steps_transitions;
-      const S3Cost = parseFloat(s3Price) * (storage_s3 / 1000000000);
+      const S3Cost = parseFloat(s3Price) * (storage_s3 / 1000000);
       const dynamoCost = parseFloat(dynamoPrice) * dynamo_calls;
+      // athena_scanned is in bytes
       const athenaCost =
         parseFloat(athenaPrice) * (athena_scanned / 1000000000);
       const totalCost =
@@ -86,17 +87,17 @@ const setPriceETL = async (job, done) => {
       const commandDynamo = new UpdateItemCommand(params);
       await dynamoDB.send(commandDynamo);
     } else {
-      await agenda.now("send:slack", {
+      const msg = `fallo en ETL executionArn: ${executionArn} - batchId: ${batchId}`;
+      // run this jobs after 5m
+      await agenda.schedule("5m", "send:slack", {
         payload: {
           body: {
-            msg: `ETL fallando executionArn: ${executionArn} - batchId: ${batchId}`,
+            msg,
           },
         },
       });
 
-      throw new Error(
-        `ETL fallando executionArn: ${executionArn} - batchId: ${batchId}`
-      );
+      done(msg);
     }
 
     done();

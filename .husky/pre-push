@@ -2,4 +2,12 @@
 . "$(dirname "$0")/_/husky.sh"
 
 echo 'some last tests to send to origin 🚀. If there are error you can run npm eslint:fix inside the container'
-npm run lint .
+
+container_id=$(docker ps -qf "name=^jobmanager$" || echo "")
+
+if [ ! -z "${container_id}" ]; then
+  docker exec "${container_id}" bash -c "npm run lint ."
+else
+  echo "Please start your container to validate the code or pass the option --no-verify"
+  exit 1
+fi

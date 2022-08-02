@@ -2,4 +2,12 @@
 . "$(dirname "$0")/_/husky.sh"
 
 echo 'checking the commit message 👨‍💻'
-npx --no-install commitlint --edit $1
+
+container_id=$(docker ps -qf "name=^jobmanager$" || echo "")
+
+if [ ! -z "${container_id}" ]; then
+  docker exec "${container_id}" bash -c "npx --no-install commitlint --edit $1"
+else
+  echo "Please start your container to validate the code or pass the option --no-verify"
+  exit 1
+fi

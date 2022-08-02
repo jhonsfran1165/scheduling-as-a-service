@@ -1,5 +1,5 @@
 {
-  "name": "job-manager",
+  "name": "jobmanager",
   "version": "1.0.0",
   "description": "Job manager W&J",
   "main": "index.js",
@@ -9,7 +9,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon --exec babel-node src/app.js",
     "start": "node src/app.js",
-    "inspect": "nodemon --inspect --exec babel-node src/app.js"
+    "inspect": "nodemon --inspect --exec babel-node src/app.js",
+    "lint": "npm run lint:eslint",
+    "lint:fix": "eslint . --fix",
+    "lint:eslint": "eslint .",
+    "format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|vue)\" \"!coverage/**\" \"!**/node_modules/**\" \"!./node_modules/**\" \"!**/.{git,svn,hg,md}/**\" \"!./.{git,svn,hg}/**\""
   },
   "author": "jhonsfran",
   "license": "ISC",
@@ -58,6 +62,12 @@
     "@semantic-release/git": "^9.0.0",
     "husky": "^7.0.1",
     "nodemon": "^2.0.15",
+    "prettier": "^2.7.1",
     "semantic-release": "^17.4.4"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }

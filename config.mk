@@ -20,7 +20,7 @@ endef
 
 # Defined here are the project configuration
 define SERVICES
-job-manager
+jobmanager
 endef
 
 # List of user defined networks that should be created.

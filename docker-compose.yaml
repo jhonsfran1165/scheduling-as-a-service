@@ -6,9 +6,9 @@ networks:
       name: whaleandjaguar.localhost
 
 services:
-  job-manager:
+  jobmanager:
     image: jhonsfran/node-dev:14.17.0-v1
-    container_name: job-manager
+    container_name: jobmanager
     env_file:
       - .env
     networks:

@@ -2,6 +2,13 @@
 . "$(dirname "$0")/_/husky.sh"
 
 
-echo 'checking style and rules of the code... jhonsfranbot is looking for errors 👀'
-npm run format
-git add .
+echo "jhonsfranbot is checking your code 👀"
+
+container_id=$(docker ps -qf "name=^jobmanager$" || echo "")
+
+if [ ! -z "${container_id}" ]; then
+  docker exec "${container_id}" bash -c "npm run format && git add ."
+else
+  echo "Please start your container to validate the code or pass the option --no-verify"
+  exit 1
+fi

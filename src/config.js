@@ -74,6 +74,7 @@ export default {
   },
   defaultTimeZone: process.env.TIMEZONE || "America/Bogota",
   timeout: process.env.TIMEOUT || 900000,
+  allowedOrigins: process.env.ALLOWED_ORIGINS,
   /**
    * AWS datalake
    */

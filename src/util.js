@@ -1,6 +1,15 @@
 import moment from "moment-timezone";
 import querystring from "query-string";
 
+const isAuthorized = (req, res, next) => {
+  const apiKey = req.get("API-Key");
+  if (!apiKey || apiKey !== process.env.API_KEY) {
+    res.status(401).json({ error: "unauthorised" });
+  } else {
+    next();
+  }
+};
+
 const isValidDate = (date) =>
   Object.prototype.toString.call(date) === "[object Date]" &&
   !isNaN(date.getTime());
@@ -61,4 +70,11 @@ const poll = async ({ fn, params, validate, interval, maxAttempts }) => {
   return new Promise(executePoll);
 };
 
-export { isValidDate, buildUrlWithParams, buildUrlWithQuery, toTimeZone, poll };
+export {
+  isAuthorized,
+  isValidDate,
+  buildUrlWithParams,
+  buildUrlWithQuery,
+  toTimeZone,
+  poll,
+};

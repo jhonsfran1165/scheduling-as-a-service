@@ -47,7 +47,7 @@ const dynamicJob = async (job, done) => {
         }
       })
       .catch((err) => {
-        console.log(err);
+        Logger.error("🔥 Error with Calling url Job: %o", err);
         job.fail(`failure in callback: ${err.message}`);
       })
       .then(() => done());

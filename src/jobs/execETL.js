@@ -1,7 +1,6 @@
 import config from "#config";
 import Logger from "#loaders/logger";
 import { buildUrlWithParams, buildUrlWithQuery } from "#util";
-import { Container } from "typedi";
 import { v4 as uuidv4 } from "uuid";
 
 const execETL = async (job, done) => {
@@ -12,7 +11,6 @@ const execETL = async (job, done) => {
 
     const { payload } = data;
     const batchId = uuidv4();
-    const agenda = Container.get("agendaInstance");
 
     Logger.debug("✌️ Calling execETL Job " + job.attrs.name);
 
@@ -24,9 +22,11 @@ const execETL = async (job, done) => {
       body: JSON.stringify({ ...payload?.body, batch_id: batchId } || {}),
       headers: {
         ...payload.headers,
-        "x-api-key": config.awsDataLake.awsApiKey,
+        "x-api-key": config.awsDataLake.awsApiKey, // ETL serverless-waj
       },
     };
+
+    console.log(options);
 
     if (["GET", "HEAD"].includes(payload.method)) delete options.body;
 
@@ -54,18 +54,6 @@ const execETL = async (job, done) => {
           job.attrs.data.payload["executionArn"] = executionArn;
           job.attrs.data.payload["batchId"] = batchId;
           await job.save();
-
-          const input = {
-            payload: {
-              executionArn,
-              batchId,
-              table: payload.body.table,
-              userId: payload.body.user_id,
-              service: payload.params.service,
-            },
-          };
-
-          await agenda.now("price:etl", input);
           done();
         } catch (e) {
           console.debug(e);

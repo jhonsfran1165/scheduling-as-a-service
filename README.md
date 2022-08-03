@@ -6,6 +6,14 @@ orchrestate jobs from different systems. From sending an email to recruiting pay
 
 This repository is the quickest way to get started with the [Job Manager][6] and its supporting services in a local development environment.
 
+You want to see a litle explanation in video format [Job Manager Intro](https://www.loom.com/share/f6cb946d3404424583a8d6ab67fd09b8)
+
+Architecture: [Job Manager Arch](https://www.loom.com/share/2eb2af8b0adf4620b8e54d958ef687f4)
+
+Demo: [Job Manager Demo Part 1](https://www.loom.com/share/2eb2af8b0adf4620b8e54d958ef687f4)
+Demo: [Job Manager Demo Part 2](https://www.loom.com/share/b724a4271d2141fab39798c52fd08c11)
+Demo: [Job Manager Demo Part 3](https://www.loom.com/share/e42a07d56c7d4bdea9f9a8c260f075ee)
+
 ---
 
 ## Prerequisites

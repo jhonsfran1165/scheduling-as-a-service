@@ -1,27 +1,23 @@
 import config from "#config";
 import dynamicJob from "#jobs/dynamicJob";
 import Logger from "#loaders/logger";
-import { toTimeZone } from "#util";
+import { isAuthorized, toTimeZone } from "#util";
 import { celebrate, Joi } from "celebrate";
 import { Router } from "express";
 import { Container } from "typedi";
 
 const route = Router();
 const default_priorities = ["highest", "high", "normal", "low", "lowest"];
-const default_types = ["normal", "dynamic"];
+const default_types = ["normal", "dynamic"]; // dynamic jobs are jobs that can be defined on demand
 
 const jobSchema = {
   name: Joi.string().required(),
-  priority: Joi.string()
-    .valid(...default_priorities)
-    .default("normal"),
-  type: Joi.string()
-    .valid(...default_types)
-    .default("dynamic"),
+  priority: Joi.string().valid(...default_priorities),
+  type: Joi.string().valid(...default_types),
   payload: Joi.alternatives().conditional("type", {
     is: "dynamic",
     then: Joi.object({
-      project: Joi.string().default("oceana"),
+      project: Joi.string(),
       url: Joi.string().uri(),
       method: Joi.string().default("POST"),
       headers: Joi.object().default({ "Content-Type": "application/json" }),
@@ -31,7 +27,7 @@ const jobSchema = {
     }),
     otherwise: Joi.object()
       .keys({
-        project: Joi.string().default("oceana"),
+        project: Joi.string(),
       })
       .unknown(true),
   }),
@@ -50,7 +46,8 @@ const jobSchema = {
 export default (app) => {
   const agenda = Container.get("agendaInstance");
 
-  app.use("/jobs", route);
+  // all routes are protected by an API_KEY (isAuthorized)
+  app.use("/jobs", isAuthorized, route);
 
   route.post(
     "/",

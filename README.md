@@ -8,11 +8,15 @@ This repository is the quickest way to get started with the [Job Manager][6] and
 
 You want to see a litle explanation in video format [Job Manager Intro](https://www.loom.com/share/f6cb946d3404424583a8d6ab67fd09b8)
 
-Architecture: [Job Manager Arch](https://www.loom.com/share/2eb2af8b0adf4620b8e54d958ef687f4)
+Architecture Video 1: [Job Manager Arch 1](https://www.loom.com/share/b1fc4d4f0ab34f50a6a598890cf154bf)
 
-Demo: [Job Manager Demo Part 1](https://www.loom.com/share/2eb2af8b0adf4620b8e54d958ef687f4)
-Demo: [Job Manager Demo Part 2](https://www.loom.com/share/b724a4271d2141fab39798c52fd08c11)
-Demo: [Job Manager Demo Part 3](https://www.loom.com/share/e42a07d56c7d4bdea9f9a8c260f075ee)
+Architecture Video 2: [Job Manager Arch 2](https://www.loom.com/share/8496188754df4b388d8d33d1adca065a)
+
+Demo Part 1: [Job Manager Demo Part 1](https://www.loom.com/share/2eb2af8b0adf4620b8e54d958ef687f4)
+
+Demo Part 2: [Job Manager Demo Part 2](https://www.loom.com/share/b724a4271d2141fab39798c52fd08c11)
+
+Demo Part 3: [Job Manager Demo Part 3](https://www.loom.com/share/e42a07d56c7d4bdea9f9a8c260f075ee)
 
 ---
 

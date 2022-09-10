@@ -1,10 +1,11 @@
 import config from "#config";
+import agendaFactory from "#loaders/agenda";
+import Logger from "#loaders/logger";
+import Mailchimp from "@mailchimp/mailchimp_marketing";
 import formData from "form-data";
 import Mailgun from "mailgun.js";
 import moment from "moment-timezone";
 import { Container } from "typedi";
-import agendaFactory from "#loaders/agenda";
-import Logger from "#loaders/logger";
 
 export default ({ mongoConnection, models }) => {
   try {
@@ -17,8 +18,14 @@ export default ({ mongoConnection, models }) => {
     const agendaInstance = agendaFactory({ mongoConnection });
     const mgInstance = new Mailgun(formData);
 
+    Mailchimp.setConfig({
+      apiKey: config.mailChimp.apiKey,
+      server: config.mailChimp.dc,
+    });
+
     Container.set("agendaInstance", agendaInstance);
     Container.set("logger", Logger);
+    Container.set("mailChimp", Mailchimp);
     Container.set(
       "emailClient",
       mgInstance.client({

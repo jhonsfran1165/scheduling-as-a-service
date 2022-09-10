@@ -89,4 +89,8 @@ export default {
     athenaPrice: process.env.ATHENA_PRICE,
     whalePrice: process.env.WHALE_PRICE,
   },
+  mailChimp: {
+    apiKey: process.env.MAILCHIMP_API_KEY,
+    dc: process.env.MAILCHIMP_DATACENTER,
+  },
 };
